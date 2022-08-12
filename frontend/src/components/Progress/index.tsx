@@ -1,11 +1,11 @@
 import React, { useRef, useState, useLayoutEffect, useEffect } from "react"
 import { useCarousel, useCarouselDispatch } from "../../store/AppContext"
-import { ECarouselActionType } from '../../store/types'
+import { ECarouselActionType, TCarouselAction } from "../../store/types"
 import "./styles.css"
 
 export default function Progress( { pid }: { pid: number}) {
   const { progressId } = useCarousel()
-  const dispatch = useCarouselDispatch()
+  let dispatch:React.Dispatch<TCarouselAction> | null  = useCarouselDispatch()
   const inner = useRef<HTMLDivElement>(null)
   useLayoutEffect(()=>{
     if (pid === progressId) {
@@ -21,10 +21,15 @@ export default function Progress( { pid }: { pid: number}) {
         anim.play()
         const finish = anim.finished
         finish.then(() => {
-          dispatch({
-            type: ECarouselActionType.SET_MOVE
-          })
+          if (dispatch) {
+            dispatch({
+              type: ECarouselActionType.SET_MOVE
+            })
+          }
         })
+    }
+    return () => { 
+      dispatch = null 
     }
   }, [progressId])
   return (

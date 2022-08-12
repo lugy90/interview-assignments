@@ -2,14 +2,14 @@ import React, { useRef, useEffect, useLayoutEffect } from "react"
 import Poster from "../Poster"
 import Progress from "../Progress"
 import { useCarousel, useCarouselDispatch } from "../../store/AppContext"
-import { ECarouselActionType } from "../../store/types"
+import { ECarouselActionType, TCarouselAction } from "../../store/types"
 import "./styles.css"
 const START_POINT = 0
 const DISTANCE = 100
 
 export default function Carousel() {
   const { posters, move, progressId, lastId } = useCarousel()
-  const dispatch = useCarouselDispatch()
+  let dispatch:React.Dispatch<TCarouselAction> | null  = useCarouselDispatch() 
   const track = useRef<HTMLDivElement>(null)
   // const catchRect = useRef<DOMRect | undefined>(undefined)
   useLayoutEffect(()=>{
@@ -30,10 +30,15 @@ export default function Carousel() {
       anim.play()
       const finish = anim.finished
       finish.then(() => {
+        if (dispatch) {
           dispatch({
             type: ECarouselActionType.SET_CURRENT,
           })
+        }
       })
+    }
+    return () => { 
+      dispatch = null 
     }
   },[move])
   return (
